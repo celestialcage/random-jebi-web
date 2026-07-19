@@ -1,0 +1,32 @@
+@import "pretendard/dist/web/static/pretendard.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%
+}
+
+@layer base {
+  html, body {
+    /* 1. 프로젝트 전체에 프리텐다드 폰트 적용 */
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    
+    /* 2. 스마트폰 자체 폰트 확대 설정 때문에 웹앱 레이아웃이 터지는 것 방지 */
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+
+    /* 3. 진짜 앱처럼 텍스트 드래그(블록) 금지 (선택 사항) */
+    -webkit-user-select: none;
+    user-select: none;
+    
+    background-color: #f3f4f6; /* 앱 배경 (회색) */
+    color: #1f2937;            /* 기본 글자색 (짙은 회색) */
+  }
+
+  /* 게임 UI 등 글자가 드래그되면 앱 감성이 깨지므로 버튼 등은 안 눌리게 방지 */
+  input, textarea {
+    user-select: auto; /* 입력창은 드래그 가능하게 예외 처리 */
+  }
+}
