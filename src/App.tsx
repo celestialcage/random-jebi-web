@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import MainLayout from "./components/common/MainLayout";
 import MainPage from "./pages/MainPage";
@@ -12,6 +12,8 @@ function App() {
     <BrowserRouter>
       <MainLayout>
         <Routes>
+          {/* 사용자가 / 로 접속하면 브라우저 주소창을 /main으로 강제 전환 */}
+          <Route path="/" element={<Navigate to="/main" replace />} />
           <Route path="/main" element={<MainPage />} />
           <Route path="/game" element={<GamePage />}>
             <Route path="/game/yes-or-no" element={<YesOrNoPage />} />
