@@ -115,7 +115,7 @@ export default function YesOrNoPage() {
     map["y"] = random; // 천사 선택 시 결과
     map["n"] = random === pool[0] ? pool[1] : pool[0]; // 악마 선택 시 반대 결과
 
-    console.log("Generated Result Map:", map); // 디버깅용 로그
+    // console.log("Generated Result Map:", map); // 디버깅용 로그
     setResultMap(map);
   };
 

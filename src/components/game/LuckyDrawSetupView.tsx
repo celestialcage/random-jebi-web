@@ -2,14 +2,19 @@ import { useState } from "react";
 
 interface Props {
   onStart: (total: number, winners: number) => void;
+  initialConfig: { total: number; winners: number };
 }
 
 const MAX_TOTAL = 99; // 💡 상수로 상단에 선언!
 
-export default function LuckyDrawSetupView({ onStart }: Props) {
+export default function LuckyDrawSetupView({ onStart, initialConfig }: Props) {
   // 💡 1. 상태를 'string'으로 관리하여 빈 값("") 입력을 허용합니다.
-  const [totalInput, setTotalInput] = useState<string>("2");
-  const [winnersInput, setWinnersInput] = useState<string>("1");
+  const [totalInput, setTotalInput] = useState<string>(
+    String(initialConfig?.total ?? 2),
+  );
+  const [winnersInput, setWinnersInput] = useState<string>(
+    String(initialConfig?.winners ?? 1),
+  );
 
   // 실제 연산에 사용할 숫자 값 (유효하지 않으면 기본값 0)
   const total = parseInt(totalInput, 10) || 0;

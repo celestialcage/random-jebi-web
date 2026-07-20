@@ -2,7 +2,21 @@ import { useState, useEffect } from "react";
 import { DrawItem, JebiOptionInput, SavedSlot } from "../../types/app";
 
 interface Props {
-  onStart: (createdItems: DrawItem[]) => void;
+  // 💡 시작 시 게임 풀(createdItems) 외에도 현재 셋업 정보(rawConfig)를 함께 전달하면 편리합니다!
+  onStart: (
+    createdItems: DrawItem[],
+    rawConfig: {
+      options: JebiOptionInput[];
+      slotTitle: string;
+      editingSlotId: string | null;
+    },
+  ) => void;
+
+  initialConfig?: {
+    options: JebiOptionInput[];
+    slotTitle: string;
+    editingSlotId: string | null;
+  };
 }
 
 const LOCAL_STORAGE_KEY = "JEBI_SAVED_SLOTS";
@@ -15,17 +29,25 @@ const DEFAULT_BLANK_OPTIONS = [
   { id: "init-2", text: "", isWinner: false },
 ];
 
-export default function JebiSetupView({ onStart }: Props) {
+export default function JebiSetupView({ onStart, initialConfig }: Props) {
+  console.log("initialConfig:", initialConfig);
   // 1. 현재 입력 중인 리스트 상태 (기본 2개 생성 제공)
+  // 💡 initialConfig가 존재하면 전달받은 값으로, 없으면 기본값으로 초기화!
   const [options, setOptions] = useState<JebiOptionInput[]>(
-    DEFAULT_BLANK_OPTIONS,
+    initialConfig?.options && initialConfig.options.length > 0
+      ? initialConfig.options
+      : DEFAULT_BLANK_OPTIONS,
   );
-  const [slotTitle, setSlotTitle] = useState<string>("");
+  const [slotTitle, setSlotTitle] = useState<string>(
+    initialConfig?.slotTitle ?? "",
+  );
 
   // 2. 로컬스토리지에 저장된 슬롯 목록 상태
   const [savedSlots, setSavedSlots] = useState<SavedSlot[]>([]);
   // 💡 [추가] 현재 어떤 슬롯을 불러와서 수정 중인지 id를 기억하는 상태 (null이면 신규 작성 중)
-  const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
+  const [editingSlotId, setEditingSlotId] = useState<string | null>(
+    initialConfig?.editingSlotId ?? null,
+  );
 
   // 첫 렌더링 시 로컬스토리지 데이터 로드
   useEffect(() => {
@@ -172,7 +194,12 @@ export default function JebiSetupView({ onStart }: Props) {
       isWinner: opt.isWinner,
     }));
 
-    onStart(finalPool);
+    // 💡 부모에게 DrawItem[]과 함께 현재 셋업 상태를 몽땅 같이 던져서 기억하게 만듭니다.
+    onStart(finalPool, {
+      options,
+      slotTitle,
+      editingSlotId,
+    });
   };
 
   return (
