@@ -40,7 +40,7 @@ export default function useDrawGame({
     }
   }, [pool, results, isGameOver, checkIsGameOver]);
 
-  const resetGame = useCallback((newPool: DrawItem[]) => {
+  const resetGame = useCallback((_newPool: DrawItem[]) => {
     setPool(() => shuffle(initialPool));
     setResults([]);
     setCurrentResult(null);
