@@ -30,7 +30,6 @@ const DEFAULT_BLANK_OPTIONS = [
 ];
 
 export default function JebiSetupView({ onStart, initialConfig }: Props) {
-  console.log("initialConfig:", initialConfig);
   // 1. 현재 입력 중인 리스트 상태 (기본 2개 생성 제공)
   // 💡 initialConfig가 존재하면 전달받은 값으로, 없으면 기본값으로 초기화!
   const [options, setOptions] = useState<JebiOptionInput[]>(

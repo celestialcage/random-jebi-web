@@ -1,30 +1,109 @@
-# React + TypeScript + Vite
+# 랜덤 제비뽑기 웹앱 🎲
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+일상에서 사소한 선택이나 순서를 정할 때 사용할 수 있는 모바일 중심의 랜덤 뽑기 웹앱입니다.
 
-Currently, two official plugins are available:
+친구와 무언가를 결정할 때 서로 선택하기 귀찮은 경우가 많아, 랜덤으로 나온 결과를 따르자는 목적으로 만들었습니다.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+React와 TypeScript의 기본 학습을 마친 후 실제로 사용할 수 있는 작은 서비스를 만들어보고자 시작했으며, 현재도 일상에서 직접 사용하면서 필요에 따라 기능을 개선하고 있습니다.
 
-## Expanding the ESLint configuration
+**[🎲 웹앱 사용해보기](https://random-jebi-web.vercel.app)**
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## 주요 기능
 
-- Configure the top-level `parserOptions` property like this:
+### ⚖️ 양자택일
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+두 가지 선택지 중 하나를 무작위로 결정합니다.
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+- '할까?', '살까?' 모드 제공
+- 선택 카드에 랜덤 결과를 배정
+- 결과를 모달로 표시
+
+### 🎯 럭키드로우
+
+참가 인원과 당첨 인원을 설정하여 무작위 추첨을 진행합니다.
+
+- 참가 인원 및 당첨 인원 설정
+- 중복 없이 무작위 추첨
+- 설정한 당첨자가 모두 나올 때까지 진행
+- 추첨 결과 확인
+
+### 🎟️ 제비뽑기
+
+사용자가 직접 선택지를 구성해 추첨할 수 있습니다.
+
+- 최대 30개의 선택지 작성
+- 선택지별 당첨 여부 설정
+- 중복 없이 전체 선택지 추첨
+- 추첨 결과 및 순서 확인
+- 작성한 선택지 조합을 최대 10개의 슬롯으로 저장
+- 저장된 슬롯 불러오기, 수정 및 삭제
+- 게임 종료 후 이전 설정 유지
+
+저장한 슬롯은 브라우저의 `localStorage`에 보관되므로 같은 브라우저에서 다시 불러올 수 있습니다. 별도의 계정이나 서버 저장 기능은 제공하지 않습니다.
+
+## Tech Stack
+
+| 분류         | 기술                         |
+| ---------- | -------------------------- |
+| Frontend   | React 18, TypeScript       |
+| Build      | Vite 5                     |
+| Styling    | Tailwind CSS 3, Pretendard |
+| Routing    | React Router 6             |
+| Storage    | Browser localStorage       |
+| Deployment | Vercel                     |
+
+별도의 백엔드 없이 클라이언트에서 추첨 및 데이터 저장 기능을 처리합니다.
+
+## 주요 구현 내용
+
+### 공통 추첨 로직 분리
+
+럭키드로우와 제비뽑기는 서로 다른 설정과 종료 조건을 갖지만, 무작위로 항목을 추첨하는 핵심 로직은 공유합니다.
+
+`useDrawGame` 커스텀 훅에 추첨 상태와 결과 관리 로직을 분리하고, 게임별 종료 조건을 함수로 전달하도록 구성했습니다.
+
+게임 진행 화면 또한 `PlayView` 컴포넌트로 공통화했습니다.
+
+### Fisher-Yates Shuffle
+
+추첨 시작 시 Fisher-Yates 알고리즘을 사용하여 항목을 무작위로 섞습니다.
+
+셔플된 배열에서 항목을 하나씩 제거하는 방식으로 중복 추첨을 방지하고, 추첨 순서의 무작위성을 유지합니다.
+
+### localStorage 기반 슬롯 관리
+
+자주 사용하는 선택지 조합을 반복해서 입력하지 않도록 슬롯 저장 기능을 구현했습니다.
+
+외부 서버나 회원가입 없이 브라우저에 데이터를 저장하며, 슬롯의 생성·조회·수정·삭제를 지원합니다.
+
+### 모바일 사용을 고려한 화면 구성
+
+스마트폰에서 사용하는 것을 우선하여 화면 너비와 레이아웃을 구성했습니다.
+
+게임 진행 중 뒤로가기 시 설정을 복구할 수 있도록 상태를 유지하고, React Router를 이용해 게임 모드별 화면을 관리합니다.
+
+## 로컬 실행
+
+Node.js 및 Yarn이 설치된 환경에서 실행할 수 있습니다.
+
+1. 저장소 클론: `git clone https://github.com/celestialcage/random-jebi-web.git`
+2. 프로젝트 이동: `cd random-jebi-web`
+3. 의존성 설치: `yarn install`
+4. 개발 서버 실행: `yarn dev`
+
+프로덕션 빌드: `yarn build`
+
+## 향후 개선 방향
+
+현재 구현된 세 가지 뽑기 모드를 중심으로 사용 중이며, 실제 사용하면서 필요한 기능을 추가하거나 UI를 개선할 예정입니다.
+
+- [ ] 모바일 UI/UX 개선
+- [ ] 추첨 진행 및 결과 화면의 시각적 표현 개선
+- [ ] 커스텀 모드 확장
+- [ ] 사용성 및 접근성 개선
+
+커스텀 모드는 추후 확장을 위해 구상 중인 기능으로, 현재는 별도로 구현되지 않았습니다.
+
+---
+
+React 학습을 실사용 가능한 웹앱으로 연결해 본 개인 프로젝트입니다. 기능을 지속적으로 늘리는 것보다는 일상에서 필요한 기능을 간편하게 사용할 수 있도록 만드는 것을 목표로 합니다.
