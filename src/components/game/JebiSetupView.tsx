@@ -202,140 +202,200 @@ export default function JebiSetupView({ onStart, initialConfig }: Props) {
   };
 
   return (
-    <div className="space-y-6 p-4 pb-24">
-      {/* 💾 파트 A: 저장된 슬롯 세트 목록 (저장 히스토리가 있을 때만 표시) */}
+    <div className="mx-auto w-full min-w-0 space-y-[24px] px-[12px] pt-[20px] pb-[calc(112px+env(safe-area-inset-bottom))] text-slate-800">
+      <div className="space-y-[6px]">
+        <p className="text-[12px] font-semibold tracking-wide text-indigo-600">
+          제비 넣기
+        </p>
+        <h1 className="text-[24px] font-bold tracking-tight">
+          무엇을 뽑아볼까요?
+        </h1>
+        <p className="text-[14px] leading-relaxed text-slate-500">
+          선택지를 적고, 당첨으로 표시할 항목을 골라주세요.
+        </p>
+      </div>
+
+      {/* 저장된 세트: 불러오기와 삭제를 각각 독립된 버튼으로 제공 */}
       {savedSlots.length > 0 && (
-        <div className="space-y-2">
-          <label className="text-sm font-bold text-indigo-600">
-            {editingSlotId ? "⚡ 세트 편집 중" : "저장된 세트 불러오기"}
-          </label>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {/* 💡 [추가된 프리셋 킬러 UX]: 언제든 새 리스트를 짤 수 있게 해주는 고정 리셋 버튼 */}
+        <section
+          aria-labelledby="jebi-saved-heading"
+          className="space-y-[12px]"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-[8px]">
+            <h2 id="jebi-saved-heading" className="text-[16px] font-bold">
+              저장된 세트{" "}
+              <span className="text-[13px] font-medium text-slate-500">
+                {savedSlots.length}/{MAX_SLOTS}
+              </span>
+            </h2>
             <button
               type="button"
               onClick={handleResetToBlank}
-              className="flex-shrink-0 px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 active:scale-95 transition-transform"
+              className="min-h-[44px] rounded-[12px] px-[12px] text-[14px] font-semibold text-indigo-600 hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500"
             >
-              ➕ 새 리스트 작성
+              + 새 리스트
             </button>
+          </div>
+          <div className="flex gap-[10px] overflow-x-auto pb-[8px]">
             {savedSlots.map((slot) => {
               const isCurrentEditing = slot.id === editingSlotId;
               return (
                 <div
                   key={slot.id}
-                  onClick={() => handleLoadSlot(slot)}
-                  // 💡 수정 중인 칩은 테두리를 다르게 주어 시각적으로 강조
-                  className={`flex items-center gap-2 flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium active:scale-95 transition-transform border ${
+                  className={`flex w-[200px] shrink-0 items-center rounded-[16px] border shadow-sm ${
                     isCurrentEditing
-                      ? "bg-indigo-600 border-indigo-600 text-white"
-                      : "bg-indigo-50 border-indigo-100 text-indigo-700"
+                      ? "border-indigo-400 bg-indigo-50"
+                      : "border-slate-200 bg-white"
                   }`}
                 >
-                  <span>{slot.title}</span>
                   <button
-                    onClick={(e) => handleDeleteSlot(slot.id, e)}
-                    className="text-indigo-300 hover:text-indigo-600 font-bold ml-1"
+                    type="button"
+                    onClick={() => handleLoadSlot(slot)}
+                    aria-pressed={isCurrentEditing}
+                    className="min-h-[80px] min-w-0 flex-1 rounded-[16px] p-[14px] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500"
                   >
-                    ✕
+                    <span className="block truncate text-[15px] font-bold text-indigo-900">
+                      {slot.title}
+                    </span>
+                    <span className="mt-[6px] block text-[12px] text-slate-500">
+                      {isCurrentEditing ? "편집 중 · " : ""}선택지{" "}
+                      {slot.items.length}개
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => handleDeleteSlot(slot.id, e)}
+                    aria-label={`${slot.title} 세트 삭제`}
+                    className="mr-[6px] flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[12px] text-[20px] text-slate-400 hover:bg-rose-50 hover:text-rose-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-500"
+                  >
+                    <span aria-hidden="true">×</span>
                   </button>
                 </div>
               );
             })}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* ✍️ 파트 B: 동적 리스트 입력 폼 */}
-      <div className="space-y-3">
-        <div className="flex justify-between items-center">
-          <label className="text-md font-bold text-gray-800">
-            옵션 리스트 작성 ({options.length}/{MAX_OPTIONS})
-          </label>
-          <button
-            type="button"
-            onClick={handleAddOption}
-            disabled={options.length >= MAX_OPTIONS}
-            className="px-3 py-1 bg-gray-900 text-white text-xs font-bold rounded-lg disabled:opacity-30"
-          >
-            + 행 추가
-          </button>
+      {/* 중첩 스크롤 없이 페이지 전체로 선택지 목록 스크롤 */}
+      <section
+        aria-labelledby="jebi-options-heading"
+        className="space-y-[12px]"
+      >
+        <div className="flex items-center justify-between gap-[12px]">
+          <h2 id="jebi-options-heading" className="text-[16px] font-bold">
+            선택지
+          </h2>
+          <span className="rounded-full bg-violet-100 px-[10px] py-[5px] text-[12px] font-semibold text-violet-700">
+            {options.length} / {MAX_OPTIONS}
+          </span>
         </div>
-
-        <div className="space-y-2 max-h-[45vh] overflow-y-auto pr-1">
+        <div className="space-y-[12px]">
           {options.map((opt, index) => (
             <div
               key={opt.id}
-              className="flex items-center gap-2 bg-gray-50 p-2 rounded-xl border border-gray-100"
+              className="space-y-[10px] rounded-[18px] border border-slate-200 bg-white p-[12px] shadow-sm"
             >
-              <span className="text-xs font-bold text-gray-400 w-4 text-center">
-                {index + 1}
-              </span>
-
+              <label
+                htmlFor={`jebi-option-${opt.id}`}
+                className="block text-[12px] font-semibold text-slate-500"
+              >
+                선택지 {index + 1}
+              </label>
               <input
+                id={`jebi-option-${opt.id}`}
                 type="text"
                 value={opt.text}
                 onChange={(e) => handleTextChange(opt.id, e.target.value)}
-                placeholder="옵션 내용을 입력하세요"
-                className="flex-1 bg-transparent py-1 text-sm font-semibold focus:outline-none"
+                placeholder="예: 커피 사기, 오늘의 행운"
+                className="h-[52px] w-full min-w-0 rounded-[12px] border border-slate-200 bg-slate-50 px-[14px] text-[16px] text-slate-800 placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
               />
-
-              {/* 당첨 / 일반 토글 뱃지 버튼 */}
-              <button
-                type="button"
-                onClick={() => handleToggleWinner(opt.id)}
-                className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
-                  opt.isWinner
-                    ? "bg-emerald-500 text-white"
-                    : "bg-gray-200 text-gray-500"
-                }`}
-              >
-                {opt.isWinner ? "당첨용" : "일반"}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleRemoveOption(opt.id)}
-                className="text-gray-400 hover:text-red-500 font-bold px-1"
-              >
-                ✕
-              </button>
+              <div className="flex items-center justify-between gap-[12px]">
+                <button
+                  type="button"
+                  onClick={() => handleToggleWinner(opt.id)}
+                  aria-label={`선택지 ${index + 1} 당첨 여부`}
+                  aria-pressed={opt.isWinner}
+                  className={`flex min-h-[44px] items-center gap-[8px] rounded-[12px] border px-[14px] text-[14px] font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500 ${
+                    opt.isWinner
+                      ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                      : "border-slate-200 bg-white text-slate-500"
+                  }`}
+                >
+                  <span aria-hidden="true">{opt.isWinner ? "★" : "☆"}</span>
+                  {opt.isWinner ? "당첨용" : "일반"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveOption(opt.id)}
+                  aria-label={`선택지 ${index + 1} 삭제`}
+                  className="min-h-[44px] min-w-[64px] rounded-[12px] px-[12px] text-[14px] font-medium text-slate-500 hover:bg-rose-50 hover:text-rose-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-500"
+                >
+                  삭제
+                </button>
+              </div>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* 📥 파트 C: 현재 리스트 슬롯으로 저장/수정하기 폼 */}
-      <div className="bg-gray-50 p-3 rounded-2xl border border-gray-100 space-y-2">
-        <p className="text-xs font-medium text-gray-500">
-          {editingSlotId
-            ? "💡 세트 이름 및 옵션을 수정합니다"
-            : "현재 입력된 조합을 슬롯에 기억해두기"}
-        </p>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={slotTitle}
-            onChange={(e) => setSlotTitle(e.target.value)}
-            placeholder="예: 트럼프 문양, 내기 메뉴"
-            className="flex-1 px-3 py-2 bg-white rounded-xl text-xs border border-gray-200 focus:outline-none focus:border-indigo-500"
-          />
-          <button
-            type="button"
-            onClick={handleSaveToSlot}
-            className="px-3 bg-white text-indigo-600 border border-indigo-200 text-xs font-bold rounded-xl active:bg-indigo-50"
-          >
-            슬롯 저장
-          </button>
-        </div>
-      </div>
-
-      {/* 하단 고정 시작 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100">
         <button
-          onClick={handleSubmit}
-          className="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg active:bg-indigo-700 active:scale-[0.99] transition-all text-center text-sm"
+          type="button"
+          onClick={handleAddOption}
+          disabled={options.length >= MAX_OPTIONS}
+          className="min-h-[48px] w-full rounded-[14px] border border-dashed border-indigo-300 bg-indigo-50/50 px-[16px] text-[14px] font-semibold text-indigo-600 hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
         >
-          이 리스트로 뽑기 시작하기 🚀
+          {options.length >= MAX_OPTIONS
+            ? "선택지는 최대 30개까지 만들 수 있어요"
+            : "+ 선택지 추가"}
+        </button>
+      </section>
+
+      <section
+        aria-labelledby="jebi-save-heading"
+        className="space-y-[12px] rounded-[18px] border border-violet-100 bg-violet-50/70 p-[16px]"
+      >
+        <div className="space-y-[4px]">
+          <h2
+            id="jebi-save-heading"
+            className="text-[16px] font-bold text-indigo-900"
+          >
+            {editingSlotId ? "저장된 세트 수정" : "다음에도 이 조합으로"}
+          </h2>
+          <p className="text-[13px] leading-relaxed text-slate-500">
+            {editingSlotId
+              ? "변경한 이름과 선택지를 기존 세트에 저장해요."
+              : "이름을 붙여 저장하면 다시 불러올 수 있어요."}
+          </p>
+        </div>
+        <label
+          htmlFor="jebi-slot-title"
+          className="block text-[13px] font-semibold text-slate-600"
+        >
+          세트 이름
+        </label>
+        <input
+          id="jebi-slot-title"
+          type="text"
+          value={slotTitle}
+          onChange={(e) => setSlotTitle(e.target.value)}
+          placeholder="예: 점심 메뉴, 주말 내기"
+          className="h-[52px] w-full min-w-0 rounded-[12px] border border-violet-200 bg-white px-[14px] text-[16px] placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        />
+        <button
+          type="button"
+          onClick={handleSaveToSlot}
+          className="min-h-[48px] w-full rounded-[12px] border border-indigo-200 bg-white px-[16px] text-[14px] font-semibold text-indigo-700 hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500"
+        >
+          {editingSlotId ? "세트 수정 저장" : "세트 저장하기"}
+        </button>
+      </section>
+
+      <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[430px] border-t border-indigo-100 bg-white/95 px-[16px] pt-[12px] pb-[calc(12px+env(safe-area-inset-bottom))] backdrop-blur">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="min-h-[56px] w-full rounded-[16px] bg-indigo-600 px-[16px] text-[16px] font-bold text-white shadow-md shadow-indigo-200 transition-colors hover:bg-indigo-700 active:bg-indigo-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        >
+          이 리스트로 뽑기 시작하기
         </button>
       </div>
     </div>

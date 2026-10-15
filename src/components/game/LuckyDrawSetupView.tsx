@@ -83,83 +83,145 @@ export default function LuckyDrawSetupView({ onStart, initialConfig }: Props) {
   };
 
   return (
-    <div className="flex flex-col justify-between min-h-[80vh] p-4">
-      <div className="space-y-8">
-        <h2 className="text-xl font-bold text-gray-800">
-          기본 설정을 입력해주세요
-        </h2>
-
-        {/* 1. 총 참가 인원 설정 */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-500">
-            총 참가 인원
-          </label>
-          <div className="flex items-center justify-between bg-gray-50 p-3 rounded-2xl border border-gray-200">
+    <div className="mx-auto w-full min-w-0 space-y-[24px] px-[12px] pt-[20px] pb-[calc(112px+env(safe-area-inset-bottom))] text-slate-800">
+      <div className="space-y-[6px]">
+        <p className="text-[12px] font-semibold tracking-wide text-indigo-600">
+          두근두근 럭키드로우
+        </p>
+        <h1 className="text-[24px] font-bold tracking-tight">당첨자 뽑기!</h1>
+        <p className="text-[14px] leading-relaxed text-slate-500">
+          참가 인원과 당첨자 수를 입력하세요.
+        </p>
+      </div>
+      <div className="space-y-[16px]">
+        <section
+          aria-labelledby="lucky-total-label"
+          className="space-y-[16px] rounded-[20px] border border-slate-200 bg-white p-[16px] shadow-sm"
+        >
+          <div className="space-y-[6px]">
+            <h2 className="text-[16px] font-bold">
+              <label id="lucky-total-label" htmlFor="lucky-total">
+                총 참가 인원
+              </label>
+            </h2>
+            <p
+              id="lucky-total-help"
+              className="text-[13px] leading-relaxed text-slate-500"
+            >
+              2명부터 99명까지 참여할 수 있어요.
+            </p>
+          </div>
+          <div className="flex items-center gap-[12px] rounded-[16px] bg-slate-50 p-[12px]">
             <button
               type="button"
               onClick={() => handleStepTotal(-1)}
-              className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-xl font-bold active:scale-95"
+              aria-label="총 참가 인원 줄이기"
+              className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-[14px] border border-slate-200 bg-white text-[24px] font-medium text-indigo-600 shadow-sm hover:bg-indigo-50 active:bg-indigo-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500"
             >
-              -
+              <span aria-hidden="true">−</span>
             </button>
-            <input
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={totalInput} // 💡 문자열 상태 연결
-              onChange={(e) =>
-                handleInputChange(e.target.value, setTotalInput, true)
-              }
-              className="w-50 text-center bg-transparent text-2xl font-bold focus:outline-none"
-              placeholder="0"
-            />
+            <div className="min-w-0 flex-1">
+              <input
+                id="lucky-total"
+                aria-describedby="lucky-total-help"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={totalInput}
+                onChange={(e) =>
+                  handleInputChange(e.target.value, setTotalInput, true)
+                }
+                placeholder="0"
+                className="h-[56px] w-full min-w-0 rounded-[12px] border border-transparent bg-transparent text-center text-[32px] font-bold tabular-nums text-indigo-900 focus:border-indigo-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              />
+              <span
+                aria-hidden="true"
+                className="block text-center text-[12px] font-medium text-slate-500"
+              >
+                명
+              </span>
+            </div>
             <button
               type="button"
               onClick={() => handleStepTotal(1)}
-              className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-xl font-bold active:scale-95"
+              aria-label="총 참가 인원 늘리기"
+              className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-[14px] border border-slate-200 bg-white text-[24px] font-medium text-indigo-600 shadow-sm hover:bg-indigo-50 active:bg-indigo-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500"
             >
-              +
+              <span aria-hidden="true">+</span>
             </button>
           </div>
-        </div>
-
-        {/* 2. 당첨자 수 설정 */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-500">당첨자 수</label>
-          <div className="flex items-center justify-between bg-gray-50 p-3 rounded-2xl border border-gray-200">
+        </section>
+        <section
+          aria-labelledby="lucky-winners-label"
+          className="space-y-[16px] rounded-[20px] border border-slate-200 bg-white p-[16px] shadow-sm"
+        >
+          <div className="space-y-[6px]">
+            <h2 className="text-[16px] font-bold">
+              <label id="lucky-winners-label" htmlFor="lucky-winners">
+                당첨자 수
+              </label>
+            </h2>
+            <p
+              id="lucky-winners-help"
+              className="text-[13px] leading-relaxed text-slate-500"
+            >
+              행운을 가져갈 인원을 정해주세요.
+            </p>
+          </div>
+          <div className="flex items-center gap-[12px] rounded-[16px] bg-slate-50 p-[12px]">
             <button
               type="button"
               onClick={() => handleStepWinners(-1)}
-              className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-xl font-bold active:scale-95"
+              aria-label="당첨자 수 줄이기"
+              className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-[14px] border border-slate-200 bg-white text-[24px] font-medium text-indigo-600 shadow-sm hover:bg-indigo-50 active:bg-indigo-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500"
             >
-              -
+              <span aria-hidden="true">−</span>
             </button>
-            <input
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={winnersInput} // 💡 문자열 상태 연결
-              onChange={(e) =>
-                handleInputChange(e.target.value, setWinnersInput, false)
-              }
-              className="w-50 text-center bg-transparent text-2xl font-bold focus:outline-none"
-              placeholder="0"
-            />
+            <div className="min-w-0 flex-1">
+              <input
+                id="lucky-winners"
+                aria-describedby="lucky-winners-help"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={winnersInput}
+                onChange={(e) =>
+                  handleInputChange(e.target.value, setWinnersInput, false)
+                }
+                placeholder="0"
+                className="h-[56px] w-full min-w-0 rounded-[12px] border border-transparent bg-transparent text-center text-[32px] font-bold tabular-nums text-indigo-900 focus:border-indigo-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              />
+              <span
+                aria-hidden="true"
+                className="block text-center text-[12px] font-medium text-slate-500"
+              >
+                명
+              </span>
+            </div>
             <button
               type="button"
               onClick={() => handleStepWinners(1)}
-              className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-xl font-bold active:scale-95"
+              aria-label="당첨자 수 늘리기"
+              className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-[14px] border border-slate-200 bg-white text-[24px] font-medium text-indigo-600 shadow-sm hover:bg-indigo-50 active:bg-indigo-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500"
             >
-              +
+              <span aria-hidden="true">+</span>
             </button>
           </div>
-        </div>
+        </section>
       </div>
-
-      <div className="pt-4">
+      <div className="rounded-[16px] border border-violet-100 bg-violet-50/70 p-[16px] text-[13px] leading-relaxed text-slate-600">
+        <p className="font-semibold text-indigo-900">
+          숫자를 눌러 직접 입력할 수도 있어요.
+        </p>
+        <p className="mt-[4px]">
+          준비가 끝나면 아래 버튼을 눌러 추첨을 시작하세요.
+        </p>
+      </div>
+      <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[430px] border-t border-indigo-100 bg-white/95 px-[16px] pt-[12px] pb-[calc(12px+env(safe-area-inset-bottom))] backdrop-blur">
         <button
+          type="button"
           onClick={handleSubmit}
-          className="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg active:bg-indigo-700 active:scale-[0.99] transition-all text-center"
+          className="min-h-[56px] w-full rounded-[16px] bg-indigo-600 px-[16px] text-[16px] font-bold text-white shadow-md shadow-indigo-200 transition-colors hover:bg-indigo-700 active:bg-indigo-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
         >
-          게임 시작하기 🪄
+          게임 시작하기
         </button>
       </div>
     </div>
