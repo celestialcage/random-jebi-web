@@ -6,7 +6,7 @@
 
 React와 TypeScript의 기본 학습을 마친 후 실제로 사용할 수 있는 작은 서비스를 만들어보고자 시작했으며, 현재도 일상에서 직접 사용하면서 필요에 따라 기능을 개선하고 있습니다.
 
-**[🎲 웹앱 사용해보기](https://random-jebi-web.vercel.app)**
+**[🎲 웹앱 배포 링크](https://random-jebi-web-tawny.vercel.app/main)**
 
 ## 주요 기능
 
