@@ -16,14 +16,16 @@ export default function Modal({
     ? createPortal(
         <div
           className={cn(
-            "fixed top-0 bottom-0 left-0 right-0 w-full h-full bg-black/30 flex justify-center items-center",
-            "hover:cursor-pointer",
+            "fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/40 p-[16px] backdrop-blur-sm",
           )}
           onClick={onClose}
           role="presentation"
         >
           <div
-            className="z-10 bg-white rounded-10 max-w-[400px] max-h-[320px] h-full w-full"
+            role="dialog"
+            aria-modal="true"
+            aria-label="선택 결과"
+            className="my-auto max-h-[calc(100dvh-32px)] w-full max-w-[398px] overflow-y-auto rounded-[24px] bg-white shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             {children}

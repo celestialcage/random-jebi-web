@@ -6,7 +6,7 @@ export default function ManualCards({
   children,
 }: PropsWithChildren<Cn>) {
   return (
-    <div className={cn("w-full h-full flex flex-col gap-y-7", className)}>
+    <div className={cn("flex w-full flex-col gap-[14px]", className)}>
       {children}
     </div>
   );
@@ -32,15 +32,21 @@ export function ManualCard<T>({
 
   return (
     <button
+      type="button"
       className={cn(
-        "w-full h-full flex flex-col justify-center items-center",
-        "text-gray900 rounded-10 bg-white shadow-sm",
+        "group flex min-h-[168px] w-full flex-col items-center justify-center gap-[12px] rounded-[24px] border border-indigo-100 bg-white p-[20px] text-indigo-950 shadow-sm",
+        "hover:border-indigo-300 hover:bg-indigo-50/40 active:bg-indigo-50 motion-safe:transition-transform motion-safe:active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500",
         className,
       )}
       onClick={handleClick}
     >
-      <div className="text-48 mb-8">{emoji}</div>
-      <div className="text-20 font-semibold">{children}</div>
+      <div
+        aria-hidden="true"
+        className="text-[56px] leading-none motion-safe:transition-transform motion-safe:group-hover:-translate-y-[3px]"
+      >
+        {emoji}
+      </div>
+      <div className="text-[18px] font-bold">{children}</div>
     </button>
   );
 }
