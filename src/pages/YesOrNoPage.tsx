@@ -1,61 +1,21 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import { CardData, YN } from "../types/app";
+import {
+  AnswerMap,
+  assignAnswers,
+  DEFAULT_MODE,
+  pickOtherKey,
+  pickRandom,
+  RESULT_SETS,
+  YN_MODES,
+  YNMode,
+} from "../domain/yesOrNo";
+import { CARD_PRESETS, PRESET_KEYS } from "../data/yesOrNoPresets";
 import cn from "classnames";
 import ManualCards, { ManualCard } from "../components/common/ManualCards";
 import Modal from "../components/common/Modal";
 import SendModalContent from "../components/game/SendModalContent";
-
-type CardPreset = {
-  id: string;
-  label: string; // 프리셋 이름 (선택 UI에 노출될 이름)
-  cards: [CardData<YN>, CardData<YN>]; // 양자택일이니 항상 2개
-};
-
-const CARD_PRESETS: Record<string, CardPreset> = {
-  angelDevil: {
-    id: "angelDevil",
-    label: "천사 / 악마",
-    cards: [
-      { label: "천사", emoji: "😇", value: "y" },
-      { label: "악마", emoji: "😈", value: "n" },
-    ],
-  },
-  parents: {
-    id: "parents",
-    label: "엄마 / 아빠",
-    cards: [
-      { label: "엄마", emoji: "👩", value: "y" },
-      { label: "아빠", emoji: "👨", value: "n" },
-    ],
-  },
-  grandParents: {
-    id: "grandParents",
-    label: "할머니 / 할아버지",
-    cards: [
-      { label: "할머니", emoji: "👵", value: "y" },
-      { label: "할아버지", emoji: "👴", value: "n" },
-    ],
-  },
-  siblings: {
-    id: "siblings",
-    label: "여동생 / 남동생",
-    cards: [
-      { label: "여동생", emoji: "👧", value: "y" },
-      { label: "남동생", emoji: "👦", value: "n" },
-    ],
-  },
-  // 계속 추가...
-};
-
-const RESULT_SETS = {
-  do: { label: "할까?", pool: ["해", "하지마"] },
-  buy: { label: "살까?", pool: ["사", "사지마"] },
-} as const;
-
-type YNMode = keyof typeof RESULT_SETS;
-
-const DEFAULT_MODE: YNMode = "do";
 
 export default function YesOrNoPage() {
   // 부모에서 받은 택배...로 setState
@@ -68,15 +28,17 @@ export default function YesOrNoPage() {
   const isOpen = location.hash === "#result";
 
   // ui preset
-  const presetKeys = Object.keys(CARD_PRESETS);
-  const [presetKey, setPresetKey] = useState<string>(
-    () => presetKeys[Math.floor(Math.random() * presetKeys.length)],
+  const [presetKey, setPresetKey] = useState<string>(() =>
+    pickRandom(PRESET_KEYS),
   );
   const currentPreset = CARD_PRESETS[presetKey];
 
   const [ynMode, setYnMode] = useState<YNMode>(DEFAULT_MODE);
-  const [resultMap, setResultMap] = useState<Record<string, string>>({}); // 선택 결과
-  const [pick, setPick] = useState<string | null>(null); // 내가 고른 것
+  // 첫 렌더 때 바로 답변 배정 (마운트 후 useEffect로 채우던 방식 대체)
+  const [resultMap, setResultMap] = useState<AnswerMap>(() =>
+    assignAnswers(DEFAULT_MODE),
+  );
+  const [pick, setPick] = useState<YN | null>(null); // 내가 고른 것
   const [selectedItem, setSelectedItem] = useState<CardData<YN> | null>(null); // 선택한 카드 정보
 
   // 타이틀 세팅
@@ -104,7 +66,7 @@ export default function YesOrNoPage() {
 
   const handleModeChange = (newMode: YNMode) => {
     if (newMode === ynMode) return;
-    getRandomResult(newMode); // 다른 모드로 바꿀 때만 새 의견 배정
+    setResultMap(assignAnswers(newMode)); // 다른 모드로 바꿀 때만 새 의견 배정
     setYnMode(newMode);
     setPick(null);
     setSelectedItem(null);
@@ -113,32 +75,15 @@ export default function YesOrNoPage() {
   const handlePresetChange = (nextKey: string) => {
     if (nextKey === presetKey || !CARD_PRESETS[nextKey]) return;
     setPresetKey(nextKey);
-    getRandomResult(ynMode); // 캐릭터 세트를 바꾸면 현재 고민에 대한 새 의견 배정
+    setResultMap(assignAnswers(ynMode)); // 캐릭터 세트를 바꾸면 현재 고민에 대한 새 의견 배정
     setPick(null);
     setSelectedItem(null);
   };
 
   const handleRandomPreset = () => {
-    const otherKeys = presetKeys.filter((key) => key !== presetKey);
-    if (otherKeys.length === 0) return;
-    handlePresetChange(otherKeys[Math.floor(Math.random() * otherKeys.length)]);
+    const nextKey = pickOtherKey(PRESET_KEYS, presetKey);
+    if (nextKey) handlePresetChange(nextKey);
   };
-
-  // 랜덤 결과물 배정
-  const getRandomResult = (mode: YNMode) => {
-    const pool = RESULT_SETS[mode].pool;
-    const random = pool[Math.floor(Math.random() * pool.length)];
-    const map: Record<string, string> = {};
-    map["y"] = random; // 천사 선택 시 결과
-    map["n"] = random === pool[0] ? pool[1] : pool[0]; // 악마 선택 시 반대 결과
-
-    // console.log("Generated Result Map:", map); // 디버깅용 로그
-    setResultMap(map);
-  };
-
-  useEffect(() => {
-    getRandomResult(DEFAULT_MODE); // 초기 결과 생성
-  }, []); // 빈 배열 = 마운트 시 딱 한 번만 실행
 
   return (
     <>
@@ -160,32 +105,22 @@ export default function YesOrNoPage() {
           aria-label="고민 종류"
           className="flex gap-[6px] rounded-[16px] border border-indigo-100 bg-indigo-50 p-[6px]"
         >
-          <button
-            type="button"
-            aria-pressed={ynMode === "do"}
-            onClick={() => handleModeChange("do")}
-            className={cn(
-              "min-h-[48px] min-w-0 flex-1 rounded-[12px] px-[12px] text-[16px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500",
-              ynMode === "do"
-                ? "bg-white font-bold text-indigo-700 shadow-sm"
-                : "font-medium text-slate-500 hover:bg-white/60",
-            )}
-          >
-            할까?
-          </button>
-          <button
-            type="button"
-            aria-pressed={ynMode === "buy"}
-            onClick={() => handleModeChange("buy")}
-            className={cn(
-              "min-h-[48px] min-w-0 flex-1 rounded-[12px] px-[12px] text-[16px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500",
-              ynMode === "buy"
-                ? "bg-white font-bold text-indigo-700 shadow-sm"
-                : "font-medium text-slate-500 hover:bg-white/60",
-            )}
-          >
-            살까?
-          </button>
+          {YN_MODES.map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              aria-pressed={ynMode === mode}
+              onClick={() => handleModeChange(mode)}
+              className={cn(
+                "min-h-[48px] min-w-0 flex-1 rounded-[12px] px-[12px] text-[16px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500",
+                ynMode === mode
+                  ? "bg-white font-bold text-indigo-700 shadow-sm"
+                  : "font-medium text-slate-500 hover:bg-white/60",
+              )}
+            >
+              {RESULT_SETS[mode].label}
+            </button>
+          ))}
         </div>
 
         <section aria-label="조언해줄 캐릭터" className="space-y-[12px]">
@@ -203,7 +138,7 @@ export default function YesOrNoPage() {
               aria-describedby="yes-no-preset-help"
               className="h-[48px] min-w-0 flex-1 rounded-[12px] border border-indigo-200 bg-white px-[12px] text-[16px] font-semibold text-indigo-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
             >
-              {presetKeys.map((key) => (
+              {PRESET_KEYS.map((key) => (
                 <option key={key} value={key}>
                   {CARD_PRESETS[key].label}
                 </option>
